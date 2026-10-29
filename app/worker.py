@@ -63,14 +63,28 @@ class FabricQueueWorker:
             db = get_firestore()
             stall_cutoff = datetime.now(timezone.utc) - timedelta(seconds=STALL_TIMEOUT_SECONDS)
             
-            stalled_query = db.collection("fabricJobs") \
+            # Simple query without composite index requirement
+            stalled_docs = db.collection("fabricJobs") \
                 .where("status", "==", "processing") \
-                .where("startedAt", "<=", stall_cutoff) \
-                .limit(5)
-            
-            stalled_docs = stalled_query.get()
+                .limit(20) \
+                .get()
+
             for doc in stalled_docs:
                 data = doc.to_dict()
+                started_at = data.get("startedAt")
+                if not started_at:
+                    continue
+                # Handle Firestore DatetimeWithNanoseconds or epoch
+                if hasattr(started_at, "timestamp"):
+                    started_dt = started_at
+                elif isinstance(started_at, (int, float)):
+                    started_dt = datetime.fromtimestamp(started_at / 1000.0, timezone.utc)
+                else:
+                    continue
+
+                if started_dt > stall_cutoff:
+                    continue
+
                 attempts = data.get("attempts", 1) + 1
                 job_ref = doc.reference
                 logger.warning(f"Job {doc.id} stalled (started > 3m ago). Attempt #{attempts}")
@@ -97,17 +111,25 @@ class FabricQueueWorker:
         Returns True if a job was found and processed, False otherwise.
         """
         db = get_firestore()
-        # Query oldest queued job
-        jobs_query = db.collection("fabricJobs") \
+        # Query queued jobs without composite index requirement
+        docs = db.collection("fabricJobs") \
             .where("status", "==", "queued") \
-            .order_by("queuedAt", direction=gc_firestore.Query.ASCENDING) \
-            .limit(1)
+            .limit(10) \
+            .get()
 
-        docs = jobs_query.get()
         if not docs:
             return False
 
-        doc = docs[0]
+        def get_queue_time(d):
+            q = d.to_dict().get("queuedAt")
+            if hasattr(q, "timestamp"):
+                return q.timestamp()
+            if isinstance(q, (int, float)):
+                return q
+            return 0
+
+        sorted_docs = sorted(docs, key=get_queue_time)
+        doc = sorted_docs[0]
         job_id = doc.id
         job_ref = doc.reference
 
