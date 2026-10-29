@@ -145,8 +145,9 @@ class FabricQueueWorker:
         self.jobs_processed += 1
         return True
 
+    @staticmethod
     @gc_firestore.transactional
-    def _claim_job_transaction(self, transaction, job_ref):
+    def _claim_job_transaction(transaction, job_ref):
         snapshot = job_ref.get(transaction=transaction)
         if not snapshot.exists:
             return None
