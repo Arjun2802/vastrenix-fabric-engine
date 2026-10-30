@@ -2,8 +2,8 @@
 
 **Effective Date:** October 30, 2026  
 **Last Updated:** October 30, 2026  
-**Public Hosted URL (Play Store):** [https://arjun2802.github.io/Vastranix/privacy.html](https://arjun2802.github.io/Vastranix/privacy.html)  
-**Repository Source:** [https://github.com/Arjun2802/Vastranix/blob/main/PRIVACY-POLICY.md](https://github.com/Arjun2802/Vastranix/blob/main/PRIVACY-POLICY.md)  
+**Public Hosted URL (Play Store):** [https://arjun2802.github.io/vastrenix-fabric-engine/privacy.html](https://arjun2802.github.io/vastrenix-fabric-engine/privacy.html)  
+**Repository Source:** [https://github.com/Arjun2802/vastrenix-fabric-engine/blob/main/PRIVACY-POLICY.md](https://github.com/Arjun2802/vastrenix-fabric-engine/blob/main/PRIVACY-POLICY.md)  
 **Contact & Grievance Desk:** [contact@vastrenix.com](mailto:contact@vastrenix.com)  
 
 ---
